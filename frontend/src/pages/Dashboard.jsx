@@ -54,8 +54,8 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
 
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover-invert-center group">
+        <div className="z-20">
           <h2 className="text-2xl font-display font-bold text-gray-900 dark:text-white mb-1">
             Welcome back, {userName}! 👋
           </h2>
@@ -63,7 +63,7 @@ export default function Dashboard() {
         </div>
         <Link 
           to="/interview" 
-          className="inline-flex items-center gap-2 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
+          className="z-20 inline-flex items-center gap-2 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
         >
           <MonitorPlay size={18} /> 
           Start New Interview
@@ -81,7 +81,7 @@ export default function Dashboard() {
           <motion.div 
             key={i}
             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-            className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm p-5 flex flex-col"
+            className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm p-5 flex flex-col hover-invert-center"
           >
             <div className="w-10 h-10 rounded-lg bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 flex items-center justify-center mb-4">
               {stat.icon}
@@ -95,8 +95,8 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-        <div className="md:col-span-2 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+        <div className="md:col-span-2 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm p-6 hover-invert-center">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2 relative z-20">
             <TrendingUp size={18} className="text-primary-500" /> Performance Progress
           </h3>
           {interviewChartData.length > 0 ? (
@@ -123,8 +123,8 @@ export default function Dashboard() {
         </div>
 
 
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm p-6 hover-invert-center">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2 relative z-20">
             <Award size={18} className="text-primary-500" /> Skill Radar
           </h3>
           {radarData.length > 0 ? (
@@ -230,8 +230,8 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm p-6 hover-invert-center">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2 relative z-20">
           <Award size={18} className="text-primary-500" /> Aptitude Test History
         </h3>
         {data?.aptitudeTests?.length > 0 ? (

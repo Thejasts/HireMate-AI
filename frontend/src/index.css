@@ -19,6 +19,61 @@
   }
 }
 
+@layer utilities {
+  .hover-invert-center,
+  button,
+  a[class*="px-"] {
+    @apply relative overflow-hidden z-10 transition-colors duration-500;
+  }
+  
+  .hover-invert-center::before,
+  button::before,
+  a[class*="px-"]::before {
+    content: '';
+    @apply absolute top-1/2 left-1/2 bg-slate-200 rounded-full -z-10;
+    width: 250%;
+    aspect-ratio: 1 / 1;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .dark .hover-invert-center::before,
+  .dark button::before,
+  .dark a[class*="px-"]::before {
+    @apply bg-slate-700;
+  }
+  
+  .hover-invert-center:hover::before,
+  button:hover::before,
+  a[class*="px-"]:hover::before {
+    transform: translate(-50%, -50%) scale(1.5);
+  }
+
+  .hover-invert-center:hover,
+  button:hover,
+  a[class*="px-"]:hover {
+    @apply text-gray-900 border-transparent !important;
+  }
+  
+  .dark .hover-invert-center:hover,
+  .dark button:hover,
+  .dark a[class*="px-"]:hover {
+    @apply text-white border-transparent !important;
+  }
+
+  .hover-invert-center:hover *,
+  button:hover *,
+  a[class*="px-"]:hover * {
+    @apply text-gray-900 border-transparent transition-colors duration-500 !important;
+  }
+  
+  .dark .hover-invert-center:hover *,
+  .dark button:hover *,
+  .dark a[class*="px-"]:hover * {
+    @apply text-white border-transparent transition-colors duration-500 !important;
+  }
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
