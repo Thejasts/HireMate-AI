@@ -2,10 +2,169 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import hrVideoFile from '../assets/hr_video.mp4';
-import { Mic, MicOff, Video, VideoOff, MessageSquare, Play, Send, Download, Eye, Settings, ShieldAlert, Award, Clock, TrendingUp, AlertTriangle, MonitorPlay, Loader2 } from 'lucide-react';
+import {
+  Mic,
+  MicOff,
+  Video,
+  VideoOff,
+  MessageSquare,
+  Play,
+  Send,
+  Download,
+  Eye,
+  Settings,
+  ShieldAlert,
+  Award,
+  Clock,
+  TrendingUp,
+  AlertTriangle,
+  MonitorPlay,
+  Loader2,
+  UserRound,
+  Bot,
+  BriefcaseBusiness,
+  CheckCircle
+} from 'lucide-react';
 import * as faceapi from 'face-api.js';
 
 const API = 'http://localhost:5000/api';
+
+function InterviewWalkScene({ sessionInfo, interviewEnded, aiThinking, introOnly = false }) {
+  if (introOnly) {
+    return (
+      <div className="relative min-h-[calc(100vh-10rem)] overflow-hidden bg-gradient-to-br from-white via-blue-50 to-slate-50">
+        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-blue-50 to-transparent" />
+        <div className="absolute bottom-20 left-8 right-8 h-3 rounded-full bg-gradient-to-r from-slate-200 via-blue-200 to-slate-200" />
+
+        <motion.div
+          className="absolute bottom-[92px] left-[8%] flex flex-col items-center"
+          initial={{ x: 0 }}
+          animate={{ x: ['0vw', '50vw', '50vw'] }}
+          transition={{ duration: 4.4, times: [0, 0.9, 1], ease: 'easeInOut' }}
+        >
+          <motion.div
+            className="mb-3 flex h-20 w-20 items-center justify-center rounded-full border border-blue-200 bg-white text-blue-700 shadow-xl shadow-blue-100"
+            animate={{ y: [0, -7, 0] }}
+            transition={{ duration: 0.95, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <UserRound size={42} />
+          </motion.div>
+          <motion.div
+            className="h-28 w-20 rounded-t-full border border-blue-200 bg-gradient-to-b from-blue-400 to-primary-700 shadow-2xl shadow-blue-100"
+            animate={{ rotate: [-1, 1, -1] }}
+            transition={{ duration: 0.95, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <div className="mt-[-8px] flex gap-3">
+            <motion.div
+              className="h-20 w-6 rounded-full bg-slate-500"
+              animate={{ rotate: [10, -12, 10], y: [0, 3, 0] }}
+              transition={{ duration: 0.95, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            <motion.div
+              className="h-20 w-6 rounded-full bg-slate-600"
+              animate={{ rotate: [-12, 10, -12], y: [3, 0, 3] }}
+              transition={{ duration: 0.95, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          </div>
+          <BriefcaseBusiness className="absolute -right-10 top-28 text-teal-600" size={34} />
+        </motion.div>
+
+        <div className="absolute bottom-20 right-[10%] h-[390px] w-[250px] rounded-t-[2rem] border border-slate-200 bg-white p-4 shadow-2xl shadow-blue-100">
+          <div className="h-full rounded-t-[1.5rem] border border-blue-100 bg-gradient-to-br from-white via-blue-50 to-slate-100 shadow-inner">
+            <div className="absolute right-10 top-1/2 h-5 w-5 rounded-full bg-teal-400 shadow-lg shadow-teal-200" />
+            <div className="absolute inset-x-10 top-16 h-px bg-blue-100" />
+            <div className="absolute inset-x-10 bottom-16 h-px bg-blue-100" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const inInterview = Boolean(sessionInfo) && !interviewEnded;
+  const walkTarget = '13.5rem';
+  const statusText = interviewEnded
+    ? 'Interview completed'
+    : inInterview
+      ? 'Candidate is giving the interview'
+      : aiThinking
+        ? 'Preparing interview room'
+        : 'Candidate walking to the interview desk';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="relative h-52 overflow-hidden rounded-xl border border-blue-100 bg-gradient-to-br from-white via-blue-50 to-slate-50 shadow-sm"
+    >
+      <div className="absolute inset-x-6 bottom-10 h-2 rounded-full bg-gradient-to-r from-slate-200 via-blue-200 to-slate-200" />
+      <div className="absolute left-4 top-4 rounded-md border border-blue-100 bg-white/85 px-3 py-2 text-sm font-semibold text-blue-700 shadow-sm backdrop-blur">
+        <div className="flex items-center gap-2">
+          {interviewEnded ? <CheckCircle size={17} className="text-green-500" /> : <MonitorPlay size={17} />}
+          {statusText}
+        </div>
+      </div>
+
+      <motion.div
+        className="absolute bottom-[44px] left-5 flex flex-col items-center"
+        initial={{ x: 0 }}
+        animate={inInterview || interviewEnded ? { x: walkTarget } : { x: ['0rem', walkTarget, walkTarget] }}
+        transition={{ duration: inInterview || interviewEnded ? 0.8 : 4.2, times: inInterview || interviewEnded ? undefined : [0, 0.9, 1], ease: 'easeInOut' }}
+      >
+        <motion.div
+          className="mb-2 flex h-11 w-11 items-center justify-center rounded-full border border-blue-200 bg-white text-blue-700 shadow-md"
+          animate={inInterview || interviewEnded ? { y: 0 } : { y: [0, -5, 0] }}
+          transition={{ duration: 0.95, repeat: inInterview || interviewEnded ? 0 : Infinity, ease: 'easeInOut' }}
+        >
+          <UserRound size={24} />
+        </motion.div>
+        <motion.div
+          className="h-14 w-11 rounded-t-full border border-blue-200 bg-gradient-to-b from-blue-400 to-primary-700 shadow-lg shadow-blue-100"
+          animate={inInterview || interviewEnded ? { rotate: 0 } : { rotate: [-1, 1, -1] }}
+          transition={{ duration: 0.95, repeat: inInterview || interviewEnded ? 0 : Infinity, ease: 'easeInOut' }}
+        />
+        <div className="mt-[-5px] flex gap-2">
+          <motion.div
+            className="h-10 w-3.5 rounded-full bg-slate-500"
+            animate={inInterview || interviewEnded ? { rotate: 0, y: 0 } : { rotate: [10, -12, 10], y: [0, 2, 0] }}
+            transition={{ duration: 0.95, repeat: inInterview || interviewEnded ? 0 : Infinity, ease: 'easeInOut' }}
+          />
+          <motion.div
+            className="h-10 w-3.5 rounded-full bg-slate-600"
+            animate={inInterview || interviewEnded ? { rotate: 0, y: 0 } : { rotate: [-12, 10, -12], y: [2, 0, 2] }}
+            transition={{ duration: 0.95, repeat: inInterview || interviewEnded ? 0 : Infinity, ease: 'easeInOut' }}
+          />
+        </div>
+        <BriefcaseBusiness className="absolute -right-7 top-16 text-teal-600" size={25} />
+      </motion.div>
+
+      <div className="absolute bottom-9 right-5 w-32 rounded-xl border border-slate-200 bg-white p-3 shadow-xl shadow-blue-100">
+        <div className="mb-2 flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-700">
+            <Bot size={16} className="text-primary-600" />
+            AI Panel
+          </div>
+          <motion.span
+            className={`h-2.5 w-2.5 rounded-full ${inInterview ? 'bg-green-500' : interviewEnded ? 'bg-blue-500' : 'bg-slate-300'}`}
+            animate={inInterview || aiThinking ? { scale: [1, 1.4, 1], opacity: [0.6, 1, 0.6] } : { scale: 1, opacity: 1 }}
+            transition={{ duration: 0.9, repeat: inInterview || aiThinking ? Infinity : 0 }}
+          />
+        </div>
+        <div className="h-16 rounded-lg border border-blue-100 bg-blue-50 p-2">
+          <motion.div
+            className="mb-2 h-2 rounded-full bg-primary-300"
+            animate={inInterview || aiThinking ? { width: ['35%', '100%', '55%'] } : { width: '55%' }}
+            transition={{ duration: 1.2, repeat: inInterview || aiThinking ? Infinity : 0 }}
+          />
+          <div className="space-y-1.5">
+            <div className="h-1.5 rounded-full bg-slate-200" />
+            <div className="h-1.5 w-4/5 rounded-full bg-slate-200" />
+            <div className="h-1.5 w-2/3 rounded-full bg-slate-200" />
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
 
 export default function InterviewRoom() {
   const [sessionInfo, setSessionInfo] = useState(null);
@@ -16,6 +175,7 @@ export default function InterviewRoom() {
   const [transcript, setTranscript] = useState('');
   const [reportData, setReportData] = useState(null);
   const [interviewEnded, setInterviewEnded] = useState(false);
+  const [introComplete, setIntroComplete] = useState(false);
   
 
   const [jobRoles, setJobRoles] = useState([]);
@@ -37,6 +197,11 @@ export default function InterviewRoom() {
   const messagesEndRef = useRef(null);
   const aiVideoRef = useRef(null);
   const [voices, setVoices] = useState([]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setIntroComplete(true), 4300);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const loadVoices = () => setVoices(window.speechSynthesis.getVoices());
@@ -305,13 +470,24 @@ export default function InterviewRoom() {
     window.html2pdf().set(opt).from(element).save();
   };
 
+  if (!introComplete) {
+    return (
+      <motion.div
+        className="flex min-h-[calc(100vh-10rem)] flex-col justify-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <InterviewWalkScene introOnly />
+      </motion.div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-8rem)] min-h-[600px]">
       
 
       <div className="lg:col-span-4 flex flex-col gap-6">
-        
-
         {!sessionInfo && !interviewEnded && (
           <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm p-5">
             <h5 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">

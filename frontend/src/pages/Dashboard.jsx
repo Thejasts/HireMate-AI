@@ -1,17 +1,85 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { 
-  LineChart, Line, BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+import {
+  BarChart,
+  Bar,
+  RadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer
 } from 'recharts';
-import { TrendingUp, Award, AlertTriangle, Clock, MonitorPlay, BookOpen } from 'lucide-react';
+import {
+  TrendingUp,
+  Award,
+  AlertTriangle,
+  Clock,
+  MonitorPlay,
+  BookOpen,
+  Brain,
+  FileText,
+  Sparkles,
+  ArrowUpRight,
+  Activity
+} from 'lucide-react';
 
 const API = 'http://localhost:5000/api';
-const primaryColor = '#2563eb'; // text-primary-600
-const gridColor = '#e5e7eb'; // border-gray-200
-const textColor = '#6b7280'; // text-gray-500
+const primaryColor = '#2563eb';
+const tealColor = '#0f766e';
+const gridColor = '#e5e7eb';
+const textColor = '#6b7280';
+
+const sectionVariants = {
+  hidden: { opacity: 0, y: 18 },
+  visible: { opacity: 1, y: 0 }
+};
+
+function Panel({ children, className = '', delay = 0 }) {
+  return (
+    <motion.div
+      variants={sectionVariants}
+      initial="hidden"
+      animate="visible"
+      transition={{ duration: 0.45, delay, ease: 'easeOut' }}
+      whileHover={{ y: -3 }}
+      className={`rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-lg hover:shadow-blue-100 dark:border-slate-700 dark:bg-slate-800 dark:hover:shadow-black/20 ${className}`}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function StatCard({ icon, value, label, tone, delay }) {
+  return (
+    <Panel delay={delay} className="relative overflow-hidden p-5">
+      <div className={`absolute right-0 top-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full ${tone.bgSoft}`} />
+      <div className={`relative mb-4 flex h-11 w-11 items-center justify-center rounded-lg ${tone.bg} ${tone.text}`}>
+        {icon}
+      </div>
+      <div className="relative text-3xl font-bold text-gray-900 dark:text-white">{value}</div>
+      <div className="relative mt-1 text-sm font-medium text-gray-500 dark:text-gray-400">{label}</div>
+    </Panel>
+  );
+}
+
+function EmptyState({ icon, title, action }) {
+  return (
+    <div className="flex h-64 flex-col items-center justify-center text-center text-gray-400">
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 text-gray-300 dark:bg-slate-700 dark:text-slate-500">
+        {icon}
+      </div>
+      <p className="text-sm">{title}</p>
+      {action}
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const [data, setData] = useState(null);
@@ -19,22 +87,22 @@ export default function Dashboard() {
   const userId = 1;
 
   useEffect(() => {
-    setLoading(true);
     axios.get(`${API}/dashboard/${userId}`)
       .then(res => setData(res.data))
       .catch(err => console.error(err))
       .finally(() => setLoading(false));
   }, []);
 
-
-  const interviewChartData = data?.interviews
-    ?.filter(i => i.status === 'Completed')
-    .map((i, idx) => ({
-      name: `#${idx + 1}`,
-      score: parseFloat(i.final_score) || 0,
-      type: i.interview_type
-    })).reverse() || [];
-
+  const interviewChartData = useMemo(() => (
+    data?.interviews
+      ?.filter(i => i.status === 'Completed')
+      .map((i, idx) => ({
+        name: `#${idx + 1}`,
+        score: parseFloat(i.final_score) || 0,
+        type: i.interview_type
+      }))
+      .reverse() || []
+  ), [data]);
 
   const latestScore = data?.detailedScores?.[0];
   const radarData = latestScore ? [
@@ -148,94 +216,111 @@ export default function Dashboard() {
       </div>
 
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-            <BookOpen size={18} className="text-primary-500" /> Extracted Skills
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <Panel delay={0.1} className="p-6">
+          <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
+            <BookOpen size={19} className="text-primary-500" /> Extracted Skills
           </h3>
           {data?.skills?.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {data.skills.map((s, i) => (
-                <span key={i} className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                <motion.span
+                  key={i}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.03 }}
+                  className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                >
                   {s.skill_name}
-                </span>
+                </motion.span>
               ))}
             </div>
           ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">No skills found.</p>
-              <Link to="/resume" className="text-sm text-primary-600 hover:text-primary-700 font-medium">Upload Resume &rarr;</Link>
-            </div>
+            <EmptyState
+              icon={<FileText size={32} />}
+              title="No skills found yet."
+              action={<Link to="/resume" className="mt-3 text-sm font-semibold text-primary-600">Upload resume</Link>}
+            />
           )}
-        </div>
+        </Panel>
 
-
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-            <AlertTriangle size={18} className="text-red-500" /> Weak Topics
+        <Panel delay={0.16} className="p-6">
+          <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
+            <AlertTriangle size={19} className="text-amber-500" /> Weak Topics
           </h3>
           {data?.weakTopics?.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {data.weakTopics.slice(0, 10).map((t, i) => (
-                <span key={i} className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 border border-red-200 dark:border-red-800">
+                <motion.span
+                  key={i}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.04 }}
+                  className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 dark:border-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+                >
                   {t}
-                </span>
+                </motion.span>
               ))}
             </div>
           ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-500 dark:text-gray-400 text-sm">No weak topics detected yet.</p>
-            </div>
+            <EmptyState icon={<Award size={32} />} title="No weak topics detected yet." />
           )}
-        </div>
+        </Panel>
 
-
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-            <Clock size={18} className="text-gray-500" /> Recent Interviews
+        <Panel delay={0.22} className="p-6">
+          <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
+            <Clock size={19} className="text-gray-500" /> Recent Interviews
           </h3>
           {data?.interviews?.length > 0 ? (
-            <div className="space-y-4 max-h-[240px] overflow-y-auto pr-2">
+            <div className="space-y-3 max-h-[260px] overflow-y-auto pr-2">
               {data.interviews.map((interview, i) => {
                 const score = parseFloat(interview.final_score);
                 const isHigh = score >= 7;
                 const isMed = score >= 4 && score < 7;
-                
+
                 return (
-                  <div key={i} className="flex justify-between items-center pb-3 border-b border-gray-100 dark:border-slate-700 last:border-0 last:pb-0">
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: 12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.04 }}
+                    className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50/70 p-3 dark:border-slate-700 dark:bg-slate-900/40"
+                  >
                     <div>
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">{interview.job_role}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
+                      <div className="text-sm font-semibold text-gray-900 dark:text-white">{interview.job_role}</div>
+                      <div className="mt-1 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                         <Clock size={12} />
-                        {interview.interview_type} &middot; {new Date(interview.start_time).toLocaleDateString()}
+                        {interview.interview_type} - {new Date(interview.start_time).toLocaleDateString()}
                       </div>
                     </div>
-                    <div className={`flex items-center justify-center w-10 h-10 rounded-lg text-sm font-bold ${
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-bold ${
                       isHigh ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
                       isMed ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
                       'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
                     }`}>
-                      {score.toFixed(1)}
+                      {Number.isFinite(score) ? score.toFixed(1) : '--'}
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
           ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-500 dark:text-gray-400 text-sm">No interviews yet.</p>
-            </div>
+            <EmptyState icon={<MonitorPlay size={32} />} title="No interviews yet." />
           )}
-        </div>
+        </Panel>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm p-6 hover-invert-center">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2 relative z-20">
-          <Award size={18} className="text-primary-500" /> Aptitude Test History
-        </h3>
+      <Panel delay={0.18} className="p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
+            <Award size={19} className="text-primary-500" /> Aptitude Test History
+          </h3>
+          <Link to="/aptitude" className="inline-flex items-center gap-1 text-sm font-semibold text-primary-600 hover:text-primary-700">
+            Practice <ArrowUpRight size={15} />
+          </Link>
+        </div>
         {data?.aptitudeTests?.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[300px] overflow-y-auto pr-2">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {data.aptitudeTests.map((test, i) => {
               const score = test.score || 0;
               const total = test.total_qs || 1;
@@ -244,32 +329,39 @@ export default function Dashboard() {
               const isMed = percent >= 40 && percent < 70;
 
               return (
-                <div key={i} className="flex justify-between items-center p-4 border border-gray-100 dark:border-slate-700 rounded-lg">
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.04 }}
+                  className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50/80 p-4 dark:border-slate-700 dark:bg-slate-900/40"
+                >
                   <div>
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">{test.category}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
+                    <div className="text-sm font-semibold text-gray-900 dark:text-white">{test.category}</div>
+                    <div className="mt-1 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                       <Clock size={12} />
-                      {new Date(test.created_at).toLocaleDateString()} &middot; +{test.xp_earned} XP
+                      {new Date(test.created_at).toLocaleDateString()} - +{test.xp_earned} XP
                     </div>
                   </div>
-                  <div className={`flex items-center justify-center w-12 h-12 rounded-lg text-sm font-bold ${
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-lg text-sm font-bold ${
                     isHigh ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
                     isMed ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
                     'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
                   }`}>
                     {score}/{total}
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
         ) : (
-          <div className="text-center py-8">
-            <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">No aptitude tests taken yet.</p>
-            <Link to="/aptitude" className="text-sm text-primary-600 hover:text-primary-700 font-medium">Take a Test &rarr;</Link>
-          </div>
+          <EmptyState
+            icon={<Brain size={34} />}
+            title="No aptitude tests taken yet."
+            action={<Link to="/aptitude" className="mt-3 text-sm font-semibold text-primary-600">Take a test</Link>}
+          />
         )}
-      </div>
+      </Panel>
     </div>
   );
 }
