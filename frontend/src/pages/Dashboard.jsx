@@ -27,7 +27,16 @@ import {
   FileText,
   Sparkles,
   ArrowUpRight,
-  Activity
+  Activity,
+  Zap,
+  Target,
+  Shield,
+  Star,
+  Map,
+  Users,
+  ChevronRight,
+  Building2,
+  Lock
 } from 'lucide-react';
 
 const API = 'http://localhost:5000/api';
@@ -310,6 +319,31 @@ export default function Dashboard() {
         </Panel>
       </div>
 
+      {/* New Section: Achievements */}
+      <Panel delay={0.24} className="p-6">
+        <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
+          <Award size={19} className="text-primary-500" /> Achievements & Streaks
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+          {[
+            { icon: <Award size={16} className="text-yellow-500"/>, label: 'Interview Master', progress: 80 },
+            { icon: <Zap size={16} className="text-orange-500"/>, label: '7 Day Streak', progress: 40 },
+            { icon: <Brain size={16} className="text-purple-500"/>, label: 'Aptitude Champ', progress: 60 },
+            { icon: <Activity size={16} className="text-teal-500"/>, label: 'Comm. Expert', progress: 90 },
+            { icon: <Target size={16} className="text-blue-500"/>, label: 'Skill Builder', progress: 30 }
+          ].map((badge, i) => (
+            <div key={i} className="flex flex-col gap-1.5 p-2.5 rounded-lg bg-gray-50 dark:bg-slate-900/40 border border-gray-100 dark:border-slate-700">
+              <div className="flex items-center gap-2 text-sm font-medium text-gray-800 dark:text-gray-200">
+                {badge.icon} {badge.label}
+              </div>
+              <div className="h-1.5 w-full bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                <div className="h-full bg-primary-500 rounded-full" style={{ width: `${badge.progress}%` }}></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Panel>
+
       <Panel delay={0.18} className="p-6">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
@@ -359,6 +393,77 @@ export default function Dashboard() {
             icon={<Brain size={34} />}
             title="No aptitude tests taken yet."
             action={<Link to="/aptitude" className="mt-3 text-sm font-semibold text-primary-600">Take a test</Link>}
+          />
+        )}
+      </Panel>
+
+      <Panel delay={0.20} className="p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
+            <Users size={19} className="text-primary-500" /> Group Discussion History
+          </h3>
+          <Link to="/gd" className="inline-flex items-center gap-1 text-sm font-semibold text-primary-600 hover:text-primary-700">
+            Join Room <ArrowUpRight size={15} />
+          </Link>
+        </div>
+        {data?.gdHistory?.length > 0 ? (
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            {data.gdHistory.map((session, i) => {
+              const avgScore = (parseFloat(session.communication_score) + parseFloat(session.confidence_score) + parseFloat(session.participation_score) + parseFloat(session.leadership_score)) / 4;
+              const isHigh = avgScore >= 7;
+              const isMed = avgScore >= 4 && avgScore < 7;
+
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.04 }}
+                  className="flex flex-col rounded-lg border border-gray-100 bg-gray-50/80 p-4 dark:border-slate-700 dark:bg-slate-900/40"
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <div className="text-sm font-semibold text-gray-900 dark:text-white line-clamp-1">{session.topic}</div>
+                      <div className="mt-1 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                        <Clock size={12} />
+                        {new Date(session.start_time).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold ml-4 ${
+                      isHigh ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                      isMed ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                      'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                    }`}>
+                      {avgScore.toFixed(1)}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2 border-t border-gray-200 dark:border-slate-700 pt-3">
+                    <div className="text-center">
+                      <div className="text-[10px] uppercase text-gray-500">Comm</div>
+                      <div className="text-xs font-semibold dark:text-gray-300">{session.communication_score}</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-[10px] uppercase text-gray-500">Conf</div>
+                      <div className="text-xs font-semibold dark:text-gray-300">{session.confidence_score}</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-[10px] uppercase text-gray-500">Part</div>
+                      <div className="text-xs font-semibold dark:text-gray-300">{session.participation_score}</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-[10px] uppercase text-gray-500">Lead</div>
+                      <div className="text-xs font-semibold dark:text-gray-300">{session.leadership_score}</div>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        ) : (
+          <EmptyState
+            icon={<Users size={34} />}
+            title="No GD sessions completed yet."
+            action={<Link to="/gd" className="mt-3 text-sm font-semibold text-primary-600">Start Discussion</Link>}
           />
         )}
       </Panel>

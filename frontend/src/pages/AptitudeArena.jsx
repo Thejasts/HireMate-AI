@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Calculator, Brain, BookOpen, Code, Lightbulb, Users, 
@@ -112,7 +113,7 @@ export default function AptitudeArena() {
       setStep('test');
     } catch (err) {
       console.error(err);
-      alert('Failed to generate questions. Please check backend connection.');
+      toast.error('Failed to generate questions. Please check backend connection.');
       setStep('selection');
     }
   };
@@ -139,7 +140,7 @@ export default function AptitudeArena() {
       setStep('dashboard');
     } catch (err) {
       console.error(err);
-      alert('Failed to submit test.');
+      toast.error('Failed to submit test.');
       setStep('selection');
     }
   };

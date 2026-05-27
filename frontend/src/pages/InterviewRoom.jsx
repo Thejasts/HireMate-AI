@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 import hrVideoFile from '../assets/hr_video.mp4';
 import {
   Mic,
@@ -347,7 +348,7 @@ export default function InterviewRoom() {
     } catch (err) {
       console.error(err);
       setAiThinking(false);
-      alert('Failed to start interview. Check backend connection.');
+      toast.error('Failed to start interview. Check backend connection.');
     }
   };
 
@@ -428,7 +429,7 @@ export default function InterviewRoom() {
     } catch (err) {
       console.error(err);
       setAiThinking(false);
-      alert('Failed to analyze answer');
+      toast.error('Failed to analyze answer');
     }
   };
 
@@ -452,7 +453,7 @@ export default function InterviewRoom() {
       setAiThinking(false);
     } catch (err) {
       console.error(err);
-      alert('Failed to end interview and fetch report');
+      toast.error('Failed to end interview and fetch report');
       setAiThinking(false);
     }
   };
@@ -620,9 +621,33 @@ export default function InterviewRoom() {
         
 
         <div className="px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-800/50 flex justify-between items-center">
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <MessageSquare size={18} className="text-primary-500" /> Live Transcript
-          </h3>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 shadow-sm transition-colors ${
+                aiSpeaking ? 'bg-primary-50 border-primary-300 text-primary-600' :
+                aiThinking ? 'bg-purple-50 border-purple-300 text-purple-600' :
+                isListening ? 'bg-green-50 border-green-300 text-green-600' :
+                'bg-gray-100 border-gray-200 text-gray-500 dark:bg-slate-800 dark:border-slate-600 dark:text-gray-400'
+              }`}>
+                <Bot size={20} />
+              </div>
+              <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-slate-800 ${
+                !sessionInfo ? 'bg-gray-400' :
+                aiSpeaking ? 'bg-primary-500 animate-pulse' :
+                aiThinking ? 'bg-purple-500' :
+                isListening ? 'bg-green-500' :
+                'bg-gray-400'
+              }`}></div>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                AI Interview Coach
+              </h3>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                {!sessionInfo ? 'Idle' : aiSpeaking ? 'Speaking...' : aiThinking ? 'Thinking...' : isListening ? 'Listening...' : 'Idle'}
+              </p>
+            </div>
+          </div>
           <div className="flex gap-2">
             {!sessionInfo && !interviewEnded && (
               <button 
@@ -709,9 +734,15 @@ export default function InterviewRoom() {
           ) : (
             <>
               {messages.length === 0 && !aiThinking && (
-                <div className="h-full flex flex-col items-center justify-center text-gray-400">
-                  <MonitorPlay size={48} className="mb-4 opacity-20" />
-                  <p className="text-sm">Select your preferences on the left and click "Start Interview" to begin.</p>
+                <div className="h-full flex flex-col items-center justify-center text-center p-6 text-gray-500 dark:text-gray-400">
+                  <div className="relative mb-4">
+                    <div className="w-16 h-16 rounded-full bg-blue-50 dark:bg-slate-800 border border-blue-200 dark:border-slate-600 flex items-center justify-center shadow-sm">
+                      <Bot size={32} className="text-primary-500" />
+                    </div>
+                    <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-[3px] border-white dark:border-slate-900 bg-gray-400"></div>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Hello, I am your AI Interview Coach.</h3>
+                  <p className="text-sm max-w-md">Select your preferences on the left and click "Start Interview" to begin your session.</p>
                 </div>
               )}
               
@@ -720,9 +751,17 @@ export default function InterviewRoom() {
                   initial={{ opacity: 0, y: 10 }} 
                   animate={{ opacity: 1, y: 0 }} 
                   key={idx} 
-                  className={`flex flex-col ${msg.role === 'student' ? 'items-end' : 'items-start'}`}
+                  className={`flex w-full ${msg.role === 'student' ? 'justify-end' : 'justify-start'} gap-3`}
                 >
-                  {msg.role === 'ai_feedback' ? (
+                  {msg.role !== 'student' && (
+                    <div className="flex-shrink-0 mt-1">
+                      <div className="w-8 h-8 rounded-full bg-primary-50 dark:bg-primary-900/30 border border-primary-200 dark:border-primary-800 flex items-center justify-center text-primary-600 dark:text-primary-400 shadow-sm">
+                        <Bot size={16} />
+                      </div>
+                    </div>
+                  )}
+                  <div className={`flex flex-col ${msg.role === 'student' ? 'items-end' : 'items-start'} max-w-[85%]`}>
+                    {msg.role === 'ai_feedback' ? (
                     <div className="w-full max-w-2xl bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800/30 rounded-2xl rounded-tl-none p-4 shadow-sm">
                       <div className="flex justify-between items-center mb-3">
                         <span className="text-sm font-bold text-green-700 dark:text-green-400 flex items-center gap-1">
@@ -750,6 +789,7 @@ export default function InterviewRoom() {
                       <p className="text-sm md:text-base whitespace-pre-wrap leading-relaxed">{msg.text}</p>
                     </div>
                   )}
+                  </div>
                 </motion.div>
               ))}
 

@@ -66,6 +66,18 @@ router.get('/:userId', async (req, res) => {
             ORDER BY created_at DESC
         `, [userId]);
 
+        // 9. Get GD History
+        const [gdHistory] = await db.execute(`
+            SELECT 
+                s.id, s.topic, s.start_time, 
+                c.communication_score, c.confidence_score, 
+                c.participation_score, c.leadership_score
+            FROM GD_Sessions s
+            JOIN GD_Scores c ON s.id = c.session_id
+            WHERE s.user_id = ? AND s.status = 'Completed'
+            ORDER BY s.start_time DESC
+        `, [userId]);
+
         res.json({
             user,
             skills,
@@ -75,8 +87,8 @@ router.get('/:userId', async (req, res) => {
             weakTopics: Array.from(weakTopicsSet).slice(0, 10),
             jobRoles,
             logs,
-            aptitudeTests
-
+            aptitudeTests,
+            gdHistory
         });
 
     } catch (error) {

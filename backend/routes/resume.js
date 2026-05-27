@@ -7,7 +7,30 @@ const db = require('../db');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const upload = multer({ dest: 'uploads/' });
+
+// Security: Strict file validation
+const storage = multer.diskStorage({
+    destination: 'uploads/',
+    filename: (req, file, cb) => {
+        // Sanitize file name
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + '-' + file.originalname.replace(/[^a-zA-Z0-9.]/g, '_'));
+    }
+});
+
+const upload = multer({ 
+    storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB max
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype === 'application/pdf' || 
+            file.mimetype === 'application/msword' || 
+            file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+            cb(null, true);
+        } else {
+            cb(new Error('Only .pdf, .doc, and .docx formats are allowed!'), false);
+        }
+    }
+});
 
 // POST /api/resume/upload - Upload, extract skills, calculate gap
 router.post('/upload', upload.single('resume'), async (req, res) => {
@@ -18,7 +41,7 @@ router.post('/upload', upload.single('resume'), async (req, res) => {
         const { user_id, job_role_id } = req.body;
         const file = req.file;
 
-        if (!file) return res.status(400).json({ error: 'No file uploaded' });
+        if (!file) return res.status(400).json({ error: 'No valid file uploaded. Must be PDF/DOC/DOCX under 5MB.' });
 
         // 1. Read PDF
         const dataBuffer = fs.readFileSync(file.path);

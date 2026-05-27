@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 import {
   UploadCloud,
   CheckCircle,
@@ -180,9 +181,9 @@ export default function ResumeUpload() {
     } catch (err) {
       console.error(err);
       if (err.response && err.response.data && err.response.data.error) {
-        alert(`Error: ${err.response.data.error}`);
+        toast.error(`Error: ${err.response.data.error}`);
       } else {
-        alert('Failed to upload resume. Ensure backend is running and Gemini API key is set.');
+        toast.error('Failed to upload resume. Ensure backend is running and Gemini API key is set.');
       }
     } finally {
       setLoading(false);

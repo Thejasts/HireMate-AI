@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Toaster } from 'react-hot-toast';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -7,19 +8,20 @@ import {
   MonitorPlay,
   FileText,
   LayoutDashboard,
-  Sparkles,
   Brain,
   Menu,
   X,
   DoorOpen,
   UserRound,
-  BriefcaseBusiness
+  BriefcaseBusiness,
+  Users
 } from 'lucide-react';
 
 import Dashboard from './pages/Dashboard';
 import ResumeUpload from './pages/ResumeUpload';
 import InterviewRoom from './pages/InterviewRoom';
 import AptitudeArena from './pages/AptitudeArena';
+import GroupDiscussion from './pages/GroupDiscussion';
 
 const pageVariants = {
   initial: { opacity: 0, y: 10 },
@@ -64,7 +66,6 @@ function WelcomeIntro({ onDone }) {
           transition={{ duration: 0.7, ease: 'easeOut' }}
         >
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700">
-            <Sparkles size={16} />
             AI interview preparation
           </div>
           <h1 className="font-display text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
@@ -92,8 +93,8 @@ function WelcomeIntro({ onDone }) {
 
           <motion.div
             className="absolute bottom-[72px] left-[4%] flex flex-col items-center"
-            initial={{ x: 0 }}
-            animate={{ x: ['0%', '42vw', '42vw'] }}
+            initial={{ x: '0vw' }}
+            animate={{ x: ['0vw', '18vw', '18vw'] }}
             transition={{ duration: 5.2, times: [0, 0.9, 1], ease: 'easeInOut' }}
           >
             <motion.div
@@ -157,7 +158,6 @@ function WelcomeIntro({ onDone }) {
                 animate={isOpening ? { opacity: 1 } : { opacity: 0 }}
                 transition={{ duration: 0.45, delay: 0.35 }}
               >
-                <Sparkles size={38} />
                 <span className="mt-3 text-sm font-semibold">Your workspace is ready</span>
               </motion.div>
             </div>
@@ -201,9 +201,7 @@ function AppLayout({ theme, toggleTheme }) {
             {/* Logo */}
             <div className="flex-shrink-0 flex items-center">
               <Link to="/" className="flex items-center gap-2 group">
-                <div className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center text-white shadow-sm group-hover:bg-primary-700 transition-colors">
-                  <Sparkles size={16} />
-                </div>
+                <img src="/logo.png" alt="HireMate Logo" className="w-8 h-8 object-contain" />
                 <span className="font-display font-semibold text-lg tracking-tight">
                   HireMate AI
                 </span>
@@ -215,6 +213,7 @@ function AppLayout({ theme, toggleTheme }) {
               <NavLinkCustom to="/" icon={<LayoutDashboard size={16} />} label="Dashboard" />
               <NavLinkCustom to="/resume" icon={<FileText size={16} />} label="Resume" />
               <NavLinkCustom to="/aptitude" icon={<Brain size={16} />} label="Aptitude" />
+              <NavLinkCustom to="/gd" icon={<Users size={16} />} label="GD" />
               
               <div className="h-6 w-px bg-gray-200 dark:bg-slate-700 mx-2"></div>
               
@@ -267,6 +266,7 @@ function AppLayout({ theme, toggleTheme }) {
                 <NavLinkCustom to="/" icon={<LayoutDashboard size={18} />} label="Dashboard" onClick={() => setMobileMenuOpen(false)} />
                 <NavLinkCustom to="/resume" icon={<FileText size={18} />} label="Resume" onClick={() => setMobileMenuOpen(false)} />
                 <NavLinkCustom to="/aptitude" icon={<Brain size={18} />} label="Aptitude" onClick={() => setMobileMenuOpen(false)} />
+                <NavLinkCustom to="/gd" icon={<Users size={18} />} label="GD" onClick={() => setMobileMenuOpen(false)} />
                 <div className="pt-2">
                   <Link 
                     to="/interview" 
@@ -307,6 +307,11 @@ function AppLayout({ theme, toggleTheme }) {
                 <AptitudeArena />
               </motion.div>
             } />
+            <Route path="/gd" element={
+              <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }}>
+                <GroupDiscussion />
+              </motion.div>
+            } />
           </Routes>
         </AnimatePresence>
       </main>
@@ -341,6 +346,7 @@ function App() {
 
   return (
     <Router>
+      <Toaster position="bottom-right" toastOptions={{ className: 'dark:bg-slate-800 dark:text-white border border-gray-200 dark:border-slate-700 shadow-lg' }} />
       <AnimatePresence mode="wait">
         {!introComplete ? (
           <WelcomeIntro key="welcome-intro" onDone={() => setIntroComplete(true)} />
